@@ -51,4 +51,10 @@ WHERE
 product_name = "Nuts"
 ;
 
-
+SELECT
+*
+FROM
+products
+WHERE
+product_name = "Nuts"
+;

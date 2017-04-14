@@ -1,0 +1,23 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "Week 12 homework",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antipodd/Bamazon.git"
+  },
+  "author": "Karel Hartlieb",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/antipodd/Bamazon/issues"
+  },
+  "homepage": "https://github.com/antipodd/Bamazon#readme",
+  "dependencies": {
+    "inquirer": "^3.0.6",
+    "mysql": "^2.13.0"
+  }
+}

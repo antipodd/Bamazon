@@ -2,6 +2,8 @@
 var mysql = require("mysql");
 //require inquirer
 var inquirer = require("inquirer");
+//require console.table
+require("console.table");
 
 //set up connection configuration
 var connection = mysql.createConnection({
@@ -22,32 +24,38 @@ connection.connect(function(err) {
 
 });
 //give manager list of options
-inquirer.prompt([
-	{
-		type: "list",
-				message: "What would you like to do?",
-				choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"]
-				name: "managerOptions"
-	}
-]).then(function(options) {
-	//determine what is done based on input
-	switch(options.managerOptions) {
-		case "View Products for Sale":
-			viewProducts();
-			break;
-		case "View Low Inventory":
-			viewLowInventory();
-			break;
-		case "Add to Inventory":
-			addToInventory();
-			break;
-		case "Add New Product":
-			addNewProduct();
-			break;
-	}
-});
+function userPrompt() {
+	inquirer.prompt([
+		{
+			type: "list",
+					message: "What would you like to do?",
+					choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product", "Exit"],
+					name: "managerOptions"
+		}
+	]).then(function(options) {
+		//determine what is done based on input
+		switch(options.managerOptions) {
+			case "View Products for Sale":
+				viewProducts();
+				break;
+			case "View Low Inventory":
+				viewLowInventory();
+				break;
+			case "Add to Inventory":
+				addToInventory();
+				break;
+			case "Add New Product":
+				addNewProduct();
+				break;
+			case "Exit":
+				console.log("Goodbye");
+				break;
+		}
+	});
+}
 
 function viewProducts() {
+	var productsArray = [];
 	//get all information from products table
 	var sqlSequence = "SELECT item_id, product_name, price, stock_quantity FROM products";
 
@@ -56,33 +64,60 @@ function viewProducts() {
 			console.log(error);
 		} else {
 			//console.log(response);
-			for (var i = 0; i < response.length; i++) {
+			/*for (var i = 0; i < response.length; i++) {
 				console.log(response[i].item_id + " | " + response[i].product_name + " | " + response[i].price + " | " + response[i].stock_quantity);
+			}*/
+			for (var i = 0; i < response.length; i++) {
+				var productsObject = {
+										item_id: response[i].item_id,
+										product_name: response[i].product_name,
+										price: response[i].price,
+										stock_quantity: response[i].stock_quantity,
+				};
+					productsArray.push(productsObject);
+			}
+				console.table(productsArray);
 			}
 		}
-	});
+	})/*.then(function() {
+		userPrompt();
+	})*/;
+	//userPrompt();
 };
 
 function viewLowInventory() {
+	var lowInventoryArray = [];
 	//get product names and stock quantities from products
-	var sqlSequence = "SELECT product_name, stock_quantities FROM products";
+	var sqlSequence = "SELECT product_name, stock_quantity FROM products";
 
 	connection.query(sqlSequence, function(error, response) {
 		if(error) {
 			console.log(error);
 		} else {
 			//console.log(response);
-			for (var i = 0; i < response.length; i++) {
+			/*for (var i = 0; i < response.length; i++) {
 				if (response[i].stock_quantity < 5) {
 					console.log(response[i].product_name);
 				}
+			}*/
+			for (var i = 0; i < response.length; i++) {
+				if (response[i].stock_quantity < 5) {
+					var lowInventoryObject = {
+						product_name: response[i].product_name,
+						stock_quantity: response[i].stock_quantity
+					};
+					lowInventoryArray.push(lowInventoryObject);
+				}
 			}
+			console.table(lowInventoryArray);
 		}
+		
 	});
+	//userPrompt();
 };
 
 function addToInventory() {
-	var sqlSequence = "SELECT product_name, stock_quantities FROM products";
+	var sqlSequence = "SELECT product_name, stock_quantity FROM products";
 	var productArray = [];
 	connection.query(sqlSequence, function(error, response) {
 		if(error) {
@@ -95,6 +130,12 @@ function addToInventory() {
 		}
 	});
 	inquirer.prompt([
+		{
+			type: "confirm",
+			message: "Was a shipment received today?",
+			name: "confirm",
+			default: true
+		},
 		{
 			type: "list",
 			message: "Select the item to which more stock will be added",
@@ -116,6 +157,7 @@ function addToInventory() {
 			console.log("The quantity of " + options.products + " was successfully changed!");
 		});
 	});
+	//userPrompt();
 };
 
 function addNewProduct() {
@@ -147,7 +189,7 @@ function addNewProduct() {
 			default: true
 		}
 	]).then(function(newItem) {
-		if (user.confirm) {
+		if (newItem.confirm) {
 			connection.query("INSERT INTO products SET ?", {
 				product_name: newItem.newItemName,
 				department_name: newItem.newItemDepartment,
@@ -158,4 +200,7 @@ function addNewProduct() {
 			});
 		}
 	});
+	//userPrompt();
 }
+
+userPrompt();

@@ -38,7 +38,8 @@ INSERT INTO products (
 SELECT
 item_id,
 product_name,
-price
+price,
+department_name
 FROM
 products
 ;
@@ -57,4 +58,24 @@ FROM
 products
 WHERE
 product_name = "Nuts"
+;
+
+CREATE TABLE departments (
+	department_id INTEGER(11) AUTO_INCREMENT NOT NULL,
+    department_name VARCHAR(50) NOT NULL,
+    over_head_costs INTEGER(11) NOT NULL,
+    product_sales INTEGER(11),
+    PRIMARY KEY (department_id)
+);
+
+INSERT INTO departments (
+	department_name,
+    over_head_costs,
+    product_sales
+) VALUES 
+	("Collectables", 200, 0),
+    ("Food", 50, 0),
+    ("Weapons and Armor", 10000, 0),
+    ("Odds and Ends", 5000, 0),
+    ("Metals and Stuff", 500, 0)
 ;

@@ -48,66 +48,70 @@ connection.query(sqlSequence, function(error, response) {
 			productViewArray.push(productsObject);
 		}
 		console.table(productViewArray);
+		userPrompt();
 	}
 });
 
-inquirer.prompt([
+function userPrompt() {
+	inquirer.prompt([
 
-  // Confirm customer wants to buy stuff
-  {
-    type: "confirm",
-    message: "Would you like to purchase any of the items shown?",
-    name: "confirm",
-    default: true
-  }
-]).then(function(user) {
-	if(user.confirm) {
-		inquirer.prompt([
-			//ask user what they want to buy
-			{
-				type: "list",
-				message: "What would you like to purchase today?",
-				choices: productsArray,
-				name: "selection"
-			},
-			{
-				type: "input",
-    			message: "Please input quantity desired",
-    			name: "quantity"
-			}
-		]).then(function(order) {
-			var userSelection = order.selection;
-			connection.query("SELECT stock_quantity, price, department_name FROM products WHERE ?", [{
-				product_name: userSelection
-			}], function(error, response) {
-				console.log(response[0].stock_quantity);
-				console.log(response[0].department_name);
-				//console.log(response);
-				if(error) {
-					console.log(error);
-				} else if (response[0].stock_quantity < parseInt(order.quantity)) {
-					//check for sufficient stock;
-					console.log("Insufficient quantity! Your order was not placed, please try again.");
-				} else {
-					var totalPrice = response[0].price * parseInt(order.quantity);
-					connection.query("UPDATE products SET ? WHERE ?", [{
-						stock_quantity: response[0].stock_quantity - parseInt(order.quantity)
-					}, {
-						product_name: order.selection
-					}], function(err, res) {
-					console.log("Your order was successfully placed!");
-					//totalPrice = response[0].price * parseInt(order.quantity);
-					console.log("The total cost of your order is $" + totalPrice);
-					});
-					connection.query("UPDATE departments SET product_sales=product_sales+" + totalPrice + " WHERE ?", {
-						department_name: response[0].department_name
-					}, function(err, res) {});
+	  // Confirm customer wants to buy stuff
+	  {
+	    type: "confirm",
+	    message: "Would you like to purchase any of the items shown?",
+	    name: "confirm",
+	    default: true
+	  }
+	]).then(function(user) {
+		if(user.confirm) {
+			inquirer.prompt([
+				//ask user what they want to buy
+				{
+					type: "list",
+					message: "What would you like to purchase today?",
+					choices: productsArray,
+					name: "selection"
+				},
+				{
+					type: "input",
+	    			message: "Please input quantity desired",
+	    			name: "quantity"
 				}
-			});
-		});
-	} else {
-		console.log("Have a nice day!");
-	}
-});
+			]).then(function(order) {
+				var userSelection = order.selection;
+				connection.query("SELECT stock_quantity, price, department_name FROM products WHERE ?", [{
+					product_name: userSelection
+				}], function(error, response) {
+					//console.log(response[0].stock_quantity);
+					//console.log(response[0].department_name);
+					//console.log(response);
+					if(error) {
+						console.log(error);
+					} else if (response[0].stock_quantity < parseInt(order.quantity)) {
+						//check for sufficient stock;
+						console.log("Insufficient quantity! Your order was not placed, please try again.");
+					} else {
+						var totalPrice = response[0].price * parseInt(order.quantity);
+						connection.query("UPDATE products SET ? WHERE ?", [{
+							stock_quantity: response[0].stock_quantity - parseInt(order.quantity)
+						}, {
+							product_name: order.selection
+						}], function(err, res) {
+						console.log("Your order was successfully placed!");
+						//totalPrice = response[0].price * parseInt(order.quantity);
+						console.log("The total cost of your order is $" + totalPrice);
+						userPrompt();
+						});
+						connection.query("UPDATE departments SET product_sales=product_sales+ ? WHERE ?", [totalPrice, { 
+							department_name: response[0].department_name
+						}], function(err, res) {});
 
+					}
+				});
+			});
+		} else {
+			console.log("Have a nice day!");
+		}
+	});
+};
     

@@ -79,3 +79,9 @@ INSERT INTO departments (
     ("Odds and Ends", 5000, 0),
     ("Metals and Stuff", 500, 0)
 ;
+
+SELECT
+*
+FROM
+departments
+;

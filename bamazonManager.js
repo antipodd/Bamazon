@@ -74,11 +74,12 @@ function viewProducts() {
 										price: response[i].price,
 										stock_quantity: response[i].stock_quantity,
 				};
-					productsArray.push(productsObject);
+				productsArray.push(productsObject);
 			}
 				console.table(productsArray);
-			}
+				userPrompt();
 		}
+		
 	})/*.then(function() {
 		userPrompt();
 	})*/;
@@ -110,6 +111,7 @@ function viewLowInventory() {
 				}
 			}
 			console.table(lowInventoryArray);
+			userPrompt();
 		}
 		
 	});
@@ -125,7 +127,9 @@ function addToInventory() {
 		} else {
 			//console.log(response);
 			for (var i = 0; i < response.length; i++) {
-				productArray.push(response[i].product_name);
+				var productName = response[i].product_name;
+										
+				productArray.push(productName);
 			}
 		}
 	});
@@ -149,18 +153,32 @@ function addToInventory() {
 		}
 	]).then(function(options) {
 		//determine what is done based on input
-		connection.query("UPDATE products SET ? WHERE ?", [{
-			stock_quantity: response[0].stock_quantity + parseInt(options.quantity)
-			}, {
+		var product = options.products;
+
+		connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE ?", [
+			parseInt(options.quantity),
+			{
 			product_name: options.products
 			}], function(err, res) {
 			console.log("The quantity of " + options.products + " was successfully changed!");
+			userPrompt();
 		});
 	});
 	//userPrompt();
 };
 
 function addNewProduct() {
+	//not allowing the manager to create a new department, need to grab existing department names from departments table
+	var departmentsArray = [];
+	connection.query("SELECT department_name FROM departments", 
+		function(error, response) {
+				for (var i = 0; i < response.length; i++) {
+					var department = response[i].department_name;										
+					departmentsArray.push(department);
+				}
+				
+	});
+
 	inquirer.prompt([
 		{
 			type: "input",
@@ -168,8 +186,9 @@ function addNewProduct() {
 			name: "newItemName"
 		},
 		{
-			type: "input",
+			type: "list",
 			message: "In which department will this item be sold?",
+			choices: departmentsArray,
 			name: "newItemDepartment"
 		},
 		{
@@ -196,7 +215,8 @@ function addNewProduct() {
 				price: parseInt(newItem.newItemCost),
 				stock_quantity: parseInt(newItem.newItemStock)
 			}, function(err, res) {
-				console.log("You have successfully added " + newItem.newItemName + " to the store!")
+				console.log("You have successfully added " + newItem.newItemName + " to the store!");
+				userPrompt();
 			});
 		}
 	});

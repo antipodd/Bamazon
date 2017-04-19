@@ -65,6 +65,7 @@ function viewSales() {
 					salesArray.push(salesObject);
 				}
 				console.table(salesArray);
+				menuOptions();
 			});
 }
 
@@ -93,7 +94,8 @@ function createNewDepartment() {
 				over_head_costs: newDepartment.newDepartmentCosts,
 				product_sales: 0
 			}, function(err, res) {
-				console.log("You have successfully added the " + newDepartment.newDepartmentName + " department to the store!")
+				console.log("You have successfully added the " + newDepartment.newDepartmentName + " department to the store!");
+				menuOptions();
 			});
 		}
 	});

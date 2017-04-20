@@ -90,6 +90,7 @@ function userPrompt() {
 					} else if (response[0].stock_quantity < parseInt(order.quantity)) {
 						//check for sufficient stock;
 						console.log("Insufficient quantity! Your order was not placed, please try again.");
+						userPrompt();
 					} else {
 						var totalPrice = response[0].price * parseInt(order.quantity);
 						connection.query("UPDATE products SET ? WHERE ?", [{

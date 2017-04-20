@@ -132,39 +132,34 @@ function addToInventory() {
 				productArray.push(productName);
 			}
 		}
-	});
-	inquirer.prompt([
-		{
-			type: "confirm",
-			message: "Was a shipment received today?",
-			name: "confirm",
-			default: true
-		},
-		{
-			type: "list",
-			message: "Select the item to which more stock will be added",
-			choices: productArray,
-			name: "products"
-		},
-		{
-			type: "input",
-			message: "How many do you want to add?",
-			name: "quantity"
-		}
-	]).then(function(options) {
-		//determine what is done based on input
-		var product = options.products;
-
-		connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE ?", [
-			parseInt(options.quantity),
+	
+		inquirer.prompt([
+			
 			{
-			product_name: options.products
-			}], function(err, res) {
-			console.log("The quantity of " + options.products + " was successfully changed!");
-			userPrompt();
+				type: "list",
+				message: "Select the item to which more stock will be added",
+				choices: productArray,
+				name: "products"
+			},
+			{
+				type: "input",
+				message: "How many do you want to add?",
+				name: "quantity"
+			}
+		]).then(function(options) {
+			//determine what is done based on input
+			var product = options.products;
+
+			connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE ?", [
+				parseInt(options.quantity),
+				{
+				product_name: options.products
+				}], function(err, res) {
+				console.log("The quantity of " + options.products + " was successfully changed!");
+				userPrompt();
+			});
 		});
-	});
-	//userPrompt();
+	});	
 };
 
 function addNewProduct() {
